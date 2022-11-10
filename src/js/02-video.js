@@ -1,4 +1,5 @@
 import Player from '@vimeo/player';
+import throttle from 'lodash.throttle';
 
 const iframe = document.querySelector('iframe');
 const player = new Vimeo.Player(iframe);
@@ -6,6 +7,10 @@ const player = new Vimeo.Player(iframe);
 player.on('play', function () {
   console.log('played the video!');
 });
+
+const savedDuration = localStorage.getItem('videoplayer-current-time');
+const parsedDuration = JSON.parse(savedDuration);
+console.log(savedDuration, parsedDuration);
 
 const onTimeupdate = function (e) {
   const videoDuration = { seconds: e.seconds };
@@ -15,12 +20,13 @@ const onTimeupdate = function (e) {
   );
 };
 
-player.on('timeupdate', onTimeupdate);
+player.on('timeupdate', throttle(onTimeupdate, 1000));
 
 player
-  .setCurrentTime({ seconds: e.seconds })
+  .setCurrentTime(parsedDuration)
   .then(function (seconds) {
-    // seconds = the actual time that the player seeked to
+    seconds = parsedDuration;
+    console.log('the video was played');
   })
   .catch(function (error) {
     switch (error.name) {
